@@ -1,0 +1,32 @@
+#!/bin/env python3
+from scapy.all import *
+import time
+import sys
+
+def send(p) -> int :
+    t_start = time.time()
+    t_diff = None
+    ans = sr1(p,timeout = 2,verbose=False)
+    t_diff = round(((time.time() - t_start) * 1000.0) ,2)
+    if (ans):
+        if(p[IP].ttl > 1):
+            print("      |\n      V")
+        print(f"{ans[IP].src}\t{t_diff}ms")
+        if (ans[IP].src == p[IP].dst):
+            return 1
+    return 0
+
+def main():
+    default = None
+    if(len(sys.argv) > 1):
+        default = sys.argv[1]
+    else :
+        print("please provide ip to trace or a domain name")
+        exit(1)
+    for i in range(1,32) :
+        packet = IP(dst=default, ttl=i)/ICMP()
+        code = send(packet)
+        if (code == 1):
+            break
+if (__name__ == "__main__") :
+    main()
